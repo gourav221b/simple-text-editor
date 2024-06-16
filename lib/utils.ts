@@ -15,7 +15,11 @@ export enum LocalstorageItems {
   LOCAL_TEXT = 'simple-text',
   LOCAL_FILENAME = "simple-text-filename"
 }
+export const JWTMessage = {
+  "jwt expired": "File link has expired",
+  "invalid token": "Invalid file link"
 
+}
 
 
 export function saveAs(blob: Blob, filename = "Gg-Editor.txt") {

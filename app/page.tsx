@@ -2,6 +2,7 @@ import React from "react";
 import Editor from "./Editor";
 import { Metadata } from "next";
 import jwt from "jsonwebtoken";
+import { JWTMessage } from "@/lib/utils";
 export default function page({ searchParams }: { searchParams: any }) {
   let prev_text = "";
   let prev_filename = "";
@@ -15,17 +16,24 @@ export default function page({ searchParams }: { searchParams: any }) {
       prev_filename = decoded.file;
     }
   } catch (err: any) {
-    prev_text = JSON.stringify(err?.message);
+    console.log(err?.message);
+    if (JWTMessage.hasOwnProperty(err?.message))
+      prev_text = JWTMessage[err?.message as keyof typeof JWTMessage];
+    else prev_text = err?.message;
     prev_filename = "simple-text.txt";
   }
 
   async function createURL(text: string, file: string) {
     "use server";
     try {
-      let token = jwt.sign({ text, file }, `${process.env.JWT_SECRET}`);
+      let token = jwt.sign({ text, file }, `${process.env.JWT_SECRET}`, {
+        expiresIn: "1d", // expires in 1 day. todo: configurable expiry
+      });
       return { token };
     } catch (err: any) {
-      return { error: err?.message };
+      if (JWTMessage.hasOwnProperty(err?.message))
+        return { error: JWTMessage[err?.message as keyof typeof JWTMessage] };
+      else return { error: err?.message };
     }
   }
   return (

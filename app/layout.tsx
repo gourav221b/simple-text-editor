@@ -7,8 +7,9 @@ import Footer from "./footer";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
-  title: "Gourav Ghosal",
-  description: "Passionate about creating amazing web experiences",
+  applicationName: "Simple Text Editor",
+  title: "Simple Text Editor",
+  description: "Simple minimal text editor",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",

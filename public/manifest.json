@@ -1,0 +1,10 @@
+{
+  "name": "Simple Text Editor",
+  "short_name": "Simple Text Editor",
+
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}

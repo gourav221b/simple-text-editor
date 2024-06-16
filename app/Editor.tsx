@@ -9,6 +9,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import useRemoveSearchParams from "@/components/useRemoveParams";
 import { debounce, saveAs, toLines } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import React, {
   ChangeEvent,
   useEffect,
@@ -43,7 +44,7 @@ export default function Editor({
     return localStorage?.getItem("local_filename") ?? "simple-text.txt";
   });
   const [preview, setPreview] = useState(false);
-
+  const [sharingLoader, setSharingLoader] = useState(false);
   const { toast } = useToast();
 
   // remove the existing search params to retain changes made
@@ -211,6 +212,7 @@ export default function Editor({
 
   const handleShare = async () => {
     try {
+      setSharingLoader(true);
       let content = await share(text, filename);
 
       if (content.hasOwnProperty("error")) {
@@ -219,6 +221,7 @@ export default function Editor({
           title: "Something went wrong",
           description: `${content.error}`,
         });
+        setSharingLoader(false);
         return;
       }
 
@@ -229,6 +232,7 @@ export default function Editor({
           .share({
             title,
             url,
+            text: `Here is a temporary link to ${title}. The link expires in 1 day`,
           })
           .catch((error) => {
             toast({
@@ -243,7 +247,9 @@ export default function Editor({
           description: "Web Share API is not supported in this browser.",
         });
       }
+      setSharingLoader(false);
     } catch (error) {
+      setSharingLoader(false);
       toast({
         variant: "destructive",
         title: "Something went wrong",
@@ -334,7 +340,11 @@ export default function Editor({
             <MenubarTrigger
               onClick={handleShare}
               className='hover:bg-background cursor-pointer'
+              disabled={sharingLoader}
             >
+              {sharingLoader && (
+                <Loader2 className='h-4 w-4 animate-spin mr-2' />
+              )}{" "}
               Share
             </MenubarTrigger>
           </MenubarMenu>
