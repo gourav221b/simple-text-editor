@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
+  manifest: "/manifest.json",
   authors: [{ name: "Gourav Ghosal", url: "https://devgg.me/" }],
   category: "Software Engineer",
   keywords: [
