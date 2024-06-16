@@ -1,0 +1,365 @@
+"use client";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { useToast } from "@/components/ui/use-toast";
+import useRemoveSearchParams from "@/components/useRemoveParams";
+import { debounce, saveAs, toLines } from "@/lib/utils";
+import React, {
+  ChangeEvent,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
+import Markdown from "react-markdown";
+
+interface View {
+  getCursor(): [number, number];
+  getContent(): string;
+  setCursor(start: number, end: number): void;
+}
+
+const localStorage = typeof window !== "undefined" ? window.localStorage : null;
+
+export default function Editor({
+  prev_text = "",
+  prev_filename = "",
+  share,
+}: {
+  prev_text?: string;
+  prev_filename?: string;
+  share: any;
+}) {
+  const [text, setText] = useState(() => {
+    if (prev_text !== "") return prev_text;
+    return localStorage?.getItem("local_text") ?? "";
+  });
+  const [filename, setFilename] = useState(() => {
+    if (prev_filename !== "") return prev_filename;
+    return localStorage?.getItem("local_filename") ?? "simple-text.txt";
+  });
+  const [preview, setPreview] = useState(false);
+
+  const { toast } = useToast();
+
+  // remove the existing search params to retain changes made
+  useRemoveSearchParams();
+
+  useLayoutEffect(() => {
+    const editor = document.getElementById(
+      "editorTextArea"
+    ) as HTMLTextAreaElement;
+
+    if (editor) {
+      const view: View = {
+        getCursor: (): [number, number] => [
+          editor.selectionStart,
+          editor.selectionEnd,
+        ],
+        getContent: (): string => editor.value,
+        setCursor: (start: number, end: number): void => {
+          editor.setSelectionRange(start, end);
+          editor.focus();
+        },
+      };
+
+      // since tab works for accessibility, we capture it to avoid disruptions while typing
+      const handleInsertTab = (event: CustomEvent): void => {
+        const [cursorStart, cursorEnd] = view.getCursor();
+        const text = view.getContent();
+        const tab = "    ";
+
+        if (cursorStart === cursorEnd) {
+          document.execCommand("insertText", undefined, tab);
+        } else {
+          const lines = toLines(text);
+          let newText = "";
+          let lastLineEnd = 0;
+          let tabsInserted = 0;
+          let startOnLineBreak = false;
+
+          for (let i = 0; i < lines.length; i++) {
+            const start = lastLineEnd;
+            const end = lastLineEnd + lines[i].length + 1;
+
+            if (i > 0) {
+              newText += "\n";
+            }
+
+            if (end > cursorStart && start < cursorEnd) {
+              newText += tab;
+              tabsInserted++;
+            }
+
+            if (start === cursorStart) {
+              startOnLineBreak = true;
+            }
+
+            newText += lines[i];
+            lastLineEnd = end;
+          }
+
+          document.execCommand("selectAll");
+          document.execCommand("insertText", undefined, newText);
+
+          const nextCursorStart = startOnLineBreak
+            ? cursorStart
+            : cursorStart + tab.length;
+          const nextCursorEnd = cursorEnd + tabsInserted * tab.length;
+          view.setCursor(nextCursorStart, nextCursorEnd);
+        }
+      };
+
+      const handleUninsertTab = (event: CustomEvent): void => {
+        const [cursorStart, cursorEnd] = view.getCursor();
+        const text = view.getContent();
+        const initialSpaces = /^ {4}/g;
+
+        if (cursorStart !== cursorEnd) {
+          const lines = toLines(text);
+          let newText = "";
+          let lastLineEnd = 0;
+          let spacesRemoved = 0;
+          let startOnLineBreak = false;
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const start = lastLineEnd;
+            const end = lastLineEnd + line.length + 1;
+
+            let lineTransformed = line;
+
+            if (i > 0) {
+              newText += "\n";
+            }
+
+            if (end > cursorStart && start < cursorEnd) {
+              lineTransformed = line.replace(initialSpaces, "");
+            }
+
+            if (start === cursorStart) {
+              startOnLineBreak = true;
+            }
+
+            newText += lineTransformed;
+            spacesRemoved += line.length - lineTransformed.length;
+            lastLineEnd = end;
+          }
+
+          document.execCommand("selectAll");
+          document.execCommand("insertText", undefined, newText);
+
+          const nextCursorStart = startOnLineBreak
+            ? cursorStart
+            : cursorStart - 4;
+          const nextCursorEnd = cursorEnd - spacesRemoved;
+          view.setCursor(nextCursorStart, nextCursorEnd);
+        }
+      };
+
+      editor.addEventListener("keydown", (event: KeyboardEvent) => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          if (event.shiftKey) {
+            handleUninsertTab(new CustomEvent("uninsertTab"));
+          } else {
+            handleInsertTab(new CustomEvent("insertTab"));
+          }
+        }
+      });
+    }
+
+    return () => {
+      if (editor) {
+        editor.removeEventListener("keydown", () => {});
+      }
+    };
+  }, []);
+
+  // handle file load
+  const handleLoad = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setText(event.target.result.toString());
+          setFilename(file.name.trim());
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const resetEditor = () => {
+    setText("");
+    setFilename("simple-text.txt");
+  };
+
+  const handleExport = (
+    type = "text/plain;charset=utf-8",
+    extension = ".txt"
+  ) => {
+    const downloadName = filename.replace(/\.[^/.]+$/, "") + extension;
+    const blob = new Blob([text], { type });
+    saveAs(blob, downloadName);
+  };
+
+  const handleShare = async () => {
+    try {
+      let content = await share(text);
+      let file = await share(filename);
+
+      if (content.hasOwnProperty("error")) {
+        toast({
+          variant: "destructive",
+          title: "Something went wrong",
+          description: `${content.error}`,
+        });
+        return;
+      }
+
+      if (navigator.share) {
+        const title = filename;
+        const url = `${window.location.origin}${window.location.pathname}?text=${content.token}&file=${file.token}`;
+        navigator
+          .share({
+            title,
+            url,
+          })
+          .catch((error) => {
+            toast({
+              variant: "destructive",
+              title: "Something went wrong while sharing!",
+              description: `${error}`,
+            });
+          });
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Web Share API is not supported in this browser.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: JSON.stringify(error),
+      });
+    }
+  };
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      if (filename.trim() == "") setFilename("simple-text.txt");
+    }, 700);
+    if (filename.trim() !== "") {
+      clearTimeout(timeout);
+    }
+    localStorage?.setItem("local_filename", filename.trim());
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [filename]);
+
+  useEffect(() => {
+    localStorage?.setItem("local_text", text.trim());
+  }, [text]);
+
+  return (
+    <section className='flex flex-col relative h-screen'>
+      <div className='py-5 sticky top-0 z-10'>
+        <div className='flex flex-wrap justify-between items-start mb-4 gap-2'>
+          <h1 className='text-2xl font-semibold'>Simple Text Editor</h1>
+          <input
+            value={filename}
+            onChange={(e) => setFilename(e.target.value)}
+            placeholder='file name goes here'
+            className='md:text-right bg-transparent focus:border-0 w-full md:w-1/2 text-muted-foreground focus:outline-none focus:border-none focus:text-foreground'
+          />
+        </div>
+        <Menubar className='border-0 bg-muted w-auto max-w-screen overflow-x-scroll no-scrollbar text-xs sm:text-base'>
+          <MenubarMenu>
+            <MenubarTrigger
+              onClick={resetEditor}
+              className='hover:bg-background cursor-pointer'
+            >
+              New
+            </MenubarTrigger>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger asChild>
+              <div className='relative cursor-pointer hover:bg-background'>
+                <label htmlFor='file-upload'>
+                  <span>Load</span>
+                </label>
+                <input
+                  type='file'
+                  id='file-upload'
+                  name='file-upload'
+                  className='absolute left-0 w-full h-full opacity-0'
+                  onChange={handleLoad}
+                  accept='text/*'
+                />
+              </div>
+            </MenubarTrigger>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger className='cursor-pointer hover:bg-background'>
+              Export
+            </MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem onClick={() => handleExport()}>
+                Text (.txt)
+              </MenubarItem>
+              <MenubarItem
+                onClick={() => handleExport("text/csv;charset=utf-8", ".csv")}
+              >
+                CSV
+              </MenubarItem>
+              <MenubarItem onClick={() => handleExport("text/markdown", ".md")}>
+                Markdown
+              </MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+          <MenubarMenu>
+            <MenubarTrigger
+              onClick={() => setPreview((prev) => !prev)}
+              className='hover:bg-background cursor-pointer'
+            >
+              {preview ? "Edit" : "Preview"}
+            </MenubarTrigger>
+            <MenubarTrigger
+              onClick={handleShare}
+              className='hover:bg-background cursor-pointer'
+            >
+              Share
+            </MenubarTrigger>
+          </MenubarMenu>
+        </Menubar>
+      </div>
+
+      {/* editor & preview section */}
+      <div className='flex-1 overflow-scroll no-scrollbar'>
+        {!preview && (
+          <textarea
+            id='editorTextArea'
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className='w-full h-[98%] editor bg-transparent focus:border-0 focus:outline-none'
+            autoFocus={true}
+          />
+        )}
+        {preview && (
+          <div className='w-full h-[98%] editor bg-transparent focus:border-0 focus:outline-none markdown-body'>
+            <Markdown>{text}</Markdown>
+            <br />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
