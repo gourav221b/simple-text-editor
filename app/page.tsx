@@ -12,22 +12,17 @@ export default function page({ searchParams }: { searchParams: any }) {
         `${process.env.JWT_SECRET}`
       );
       prev_text = decoded.text;
-    }
-    if (searchParams.file) {
-      let decoded: any = jwt.verify(
-        searchParams.file,
-        `${process.env.JWT_SECRET}`
-      );
-      prev_filename = decoded.text;
+      prev_filename = decoded.file;
     }
   } catch (err: any) {
     prev_text = JSON.stringify(err?.message);
+    prev_filename = "simple-text.txt";
   }
 
-  async function createURL(text: string) {
+  async function createURL(text: string, file: string) {
     "use server";
     try {
-      let token = jwt.sign({ text }, `${process.env.JWT_SECRET}`);
+      let token = jwt.sign({ text, file }, `${process.env.JWT_SECRET}`);
       return { token };
     } catch (err: any) {
       return { error: err?.message };

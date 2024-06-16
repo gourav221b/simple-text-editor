@@ -211,8 +211,7 @@ export default function Editor({
 
   const handleShare = async () => {
     try {
-      let content = await share(text);
-      let file = await share(filename);
+      let content = await share(text, filename);
 
       if (content.hasOwnProperty("error")) {
         toast({
@@ -225,7 +224,7 @@ export default function Editor({
 
       if (navigator.share) {
         const title = filename;
-        const url = `${window.location.origin}${window.location.pathname}?text=${content.token}&file=${file.token}`;
+        const url = `${window.location.origin}${window.location.pathname}?text=${content.token}`;
         navigator
           .share({
             title,
