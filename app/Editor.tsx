@@ -6,17 +6,16 @@ import {
   MenubarMenu,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+
 import { useToast } from "@/components/ui/use-toast";
 import useRemoveSearchParams from "@/components/useRemoveParams";
-import { debounce, saveAs, toLines } from "@/lib/utils";
+import { cn, saveAs, toLines } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import React, {
-  ChangeEvent,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import { ChangeEvent, useEffect, useLayoutEffect, useState } from "react";
 import Markdown from "react-markdown";
+import { useEditorConfigContext } from "./config-provider";
+
+import EditorConfigMenu from "@/components/EditorConfigMenu";
 
 interface View {
   getCursor(): [number, number];
@@ -43,9 +42,12 @@ export default function Editor({
     if (prev_filename !== "") return prev_filename;
     return localStorage?.getItem("local_filename") ?? "simple-text.txt";
   });
+
   const [preview, setPreview] = useState(false);
   const [sharingLoader, setSharingLoader] = useState(false);
   const { toast } = useToast();
+
+  const { editorConfig } = useEditorConfigContext();
 
   // remove the existing search params to retain changes made
   useRemoveSearchParams();
@@ -277,14 +279,23 @@ export default function Editor({
   return (
     <section className='flex flex-col relative h-screen'>
       <div className='py-5 sticky top-0 z-10'>
-        <div className='flex flex-wrap justify-between items-start mb-4 gap-2'>
+        <div className='flex flex-wrap justify-between items-center mb-4 gap-2'>
           <h1 className='text-2xl font-semibold'>Simple Text Editor</h1>
-          <input
-            value={filename}
-            onChange={(e) => setFilename(e.target.value)}
-            placeholder='file name goes here'
-            className='md:text-right bg-transparent focus:border-0 w-full md:w-1/2 text-muted-foreground focus:outline-none focus:border-none focus:text-foreground'
-          />
+          <div className='ml-auto md:hidden'>
+            <EditorConfigMenu />
+          </div>
+          <div className='flex items-center gap-4 w-full md:w-1/2 ml-auto'>
+            <input
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              placeholder='file name goes here'
+              className='md:text-right flex-1  bg-transparent focus:border-b focus:border-0 w-full md:w-auto text-muted-foreground focus:outline-none focus:border-none focus:text-foreground'
+            />
+            <div className='hidden md:inline-block'>
+              {" "}
+              <EditorConfigMenu />
+            </div>
+          </div>
         </div>
         <Menubar className='border-0 bg-muted w-auto max-w-screen overflow-x-scroll no-scrollbar text-xs sm:text-base'>
           <MenubarMenu>
@@ -355,10 +366,21 @@ export default function Editor({
       <div className='flex-1 overflow-scroll no-scrollbar'>
         {!preview && (
           <textarea
+            data-step='1'
+            data-title='Welcome!'
+            data-intro='Hello World! 👋'
             id='editorTextArea'
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className='w-full h-[98%] editor bg-transparent focus:border-0 focus:outline-none'
+            className={cn(
+              "w-full h-[98%] editor bg-transparent focus:border-0 focus:outline-none"
+            )}
+            style={{
+              fontSize: editorConfig?.fontSize,
+              fontFamily: editorConfig?.fontFamily
+                ? editorConfig?.fontFamily
+                : "Inter, sans-serif",
+            }}
             autoFocus={true}
           />
         )}

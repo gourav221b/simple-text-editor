@@ -6,6 +6,10 @@ import { Inter } from "next/font/google";
 import Footer from "./footer";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
+import { EditorConfigProvider } from "./config-provider";
+import Head from "next/head";
+import { THEMES } from "@/lib/constants";
+
 export const metadata: Metadata = {
   applicationName: "Simple Text Editor",
   title: "Simple Text Editor",
@@ -56,6 +60,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' className='scroll-smooth'>
+      <Head>
+        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link
+          rel='preconnect'
+          href='https://fonts.gstatic.com'
+          crossOrigin=''
+        />
+        <link
+          href='https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Playwrite+AU+NSW:wght@100..400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'
+          rel='stylesheet'
+        ></link>
+      </Head>
       <body className={cn(inter.className, "w-full mx-auto  ")}>
         <Script
           async
@@ -70,17 +86,20 @@ export default function RootLayout({
               gtag('config', 'G-QD4WW87QJ1');
           `}
         </Script>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='dark'
-          disableTransitionOnChange
-        >
-          <main className='flex min-h-screen flex-col relative px-2 lg:px-6'>
-            <div className='px-2'>{children}</div>
-            <Footer />
-            <Toaster />
-          </main>
-        </ThemeProvider>
+        <EditorConfigProvider>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='dark'
+            disableTransitionOnChange
+            themes={THEMES}
+          >
+            <main className='flex min-h-screen flex-col relative px-2 lg:px-6'>
+              <div className='px-2'>{children}</div>
+              <Footer />
+              <Toaster />
+            </main>
+          </ThemeProvider>
+        </EditorConfigProvider>
       </body>
     </html>
   );
