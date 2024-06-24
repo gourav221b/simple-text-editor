@@ -37,7 +37,7 @@ export default function page({ searchParams }: { searchParams: any }) {
     }
   }
   return (
-    <section className='relative'>
+    <section className='relative '>
       <Editor
         prev_text={prev_text || ""}
         prev_filename={prev_filename || ""}

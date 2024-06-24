@@ -93,8 +93,8 @@ export default function RootLayout({
             disableTransitionOnChange
             themes={THEMES}
           >
-            <main className='flex min-h-screen flex-col relative px-2 lg:px-6'>
-              <div className='px-2'>{children}</div>
+            <main className='flex min-h-screen flex-col relative '>
+              <div>{children}</div>
               <Footer />
               <Toaster />
             </main>

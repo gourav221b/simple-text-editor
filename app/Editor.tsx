@@ -11,7 +11,13 @@ import { useToast } from "@/components/ui/use-toast";
 import useRemoveSearchParams from "@/components/useRemoveParams";
 import { cn, saveAs, toLines } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { ChangeEvent, useEffect, useLayoutEffect, useState } from "react";
+import {
+  ChangeEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import Markdown from "react-markdown";
 import { useEditorConfigContext } from "./config-provider";
 
@@ -43,6 +49,27 @@ export default function Editor({
     return localStorage?.getItem("local_filename") ?? "simple-text.txt";
   });
 
+  const handleSelectionChange = () => {
+    const selection = window.getSelection();
+    if (selection) {
+      const selectedText = selection.toString();
+      setTextAnalytics((prev) => ({
+        ...prev,
+        selectedCharacters: selectedText.length,
+      }));
+    } else {
+      setTextAnalytics((prev) => ({
+        ...prev,
+        selectedCharacters: 0,
+      }));
+    }
+  };
+  const [textAnalytics, setTextAnalytics] = useState({
+    lines: 0,
+    characters: 0,
+    words: 0,
+    selectedCharacters: 0,
+  });
   const [preview, setPreview] = useState(false);
   const [sharingLoader, setSharingLoader] = useState(false);
   const { toast } = useToast();
@@ -274,11 +301,23 @@ export default function Editor({
 
   useEffect(() => {
     localStorage?.setItem("local_text", text.trim());
+    setTextAnalytics((prev) => ({
+      ...prev,
+      lines: text.split("\n").length,
+      characters: text.length,
+      words: text
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0).length,
+    }));
   }, [text]);
 
   return (
-    <section className='flex flex-col relative h-screen'>
-      <div className='py-5 sticky top-0 z-10'>
+    <section
+      className='flex flex-col relative h-screen'
+      onMouseUp={handleSelectionChange}
+    >
+      <div className='py-5 sticky top-0 z-10 px-2 lg:px-6'>
         <div className='flex flex-wrap justify-between items-center mb-4 gap-2'>
           <h1 className='text-2xl font-semibold'>Simple Text Editor</h1>
           <div className='ml-auto md:hidden'>
@@ -363,12 +402,9 @@ export default function Editor({
       </div>
 
       {/* editor & preview section */}
-      <div className='flex-1 overflow-scroll no-scrollbar'>
+      <div className='flex-1 overflow-scroll no-scrollbar px-2 lg:px-6'>
         {!preview && (
           <textarea
-            data-step='1'
-            data-title='Welcome!'
-            data-intro='Hello World! 👋'
             id='editorTextArea'
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -390,6 +426,15 @@ export default function Editor({
             <br />
           </div>
         )}
+      </div>
+
+      <div className='bg-analytics w-full absolute bottom-0 flex items-center gap-2 justify-end px-2 lg:px-6 text-sm py-1'>
+        <span>Lines: {textAnalytics.lines}</span>
+        <span>Characters: {textAnalytics.characters}</span>
+        {textAnalytics.selectedCharacters > 0 && (
+          <span>({textAnalytics.selectedCharacters} selected)</span>
+        )}
+        <span>Words: {textAnalytics.words}</span>
       </div>
     </section>
   );
