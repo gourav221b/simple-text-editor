@@ -74,9 +74,7 @@ export const EditorConfigProvider = ({
   };
 
   const setConfigTheme = (theme: string) => {
-    console.log(theme);
     setTheme("light");
-    // setTheme(theme);
     setEditorConfig((prev) => ({
       ...prev!,
       theme,

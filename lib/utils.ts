@@ -32,13 +32,16 @@ export function saveAs(blob: Blob, filename = "Gg-Editor.txt") {
   document.body.removeChild(link);
   URL.revokeObjectURL(blobUrl)
 }
-export function debounce(callback: Function, delay: number = 500) {
-  let timeout: any
-  return (...args: any[]) => {
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(() => { callback(...args) }, delay)
-  }
+export function debounce(func: (...args: any[]) => void, wait: number) {
+  let timeout: NodeJS.Timeout | null;
+  return function (this: void, ...args: any[]) {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait);
+  };
 }
+
 
 export function trimEnd(text: string) {
   const trimPoint = text.match(/(\s)+$/g);
@@ -51,4 +54,14 @@ export function trimEnd(text: string) {
 
 export function toLines(text: string) {
   return text.split(/\r\n|\r|\n/);
+}
+
+export function toggleFullScreen() {
+  if (typeof window == "undefined")
+    return
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else if (document.exitFullscreen) {
+    document.exitFullscreen();
+  }
 }

@@ -13,7 +13,8 @@ import { THEMES } from "@/lib/constants";
 export const metadata: Metadata = {
   applicationName: "Simple Text Editor",
   title: "Simple Text Editor",
-  description: "Simple minimal text editor",
+  description:
+    "Experience seamless writing with our Simple Text Editor. Minimalistic design, powerful features, and distraction-free environment. Perfect for writers, coders, and note-takers. Start creating today!",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
@@ -33,8 +34,9 @@ export const metadata: Metadata = {
     "Gourav",
   ],
   openGraph: {
-    title: "Gourav Ghosal | Developer, designer, artist",
-    description: "Passionate about creating amazing web experiences",
+    title: "Simple Text Editor",
+    description:
+      "Experience seamless writing with our Simple Text Editor. Minimalistic design, powerful features, and distraction-free environment. Perfect for writers, coders, and note-takers. Start creating today!",
     images: [
       "https://res.cloudinary.com/djl46nj0r/image/upload/v1710252645/bBack_and_Yellow_Personal_Trainer_Linkedin_Banner_rhgakl.png",
     ],
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `Gourav Ghosal | Developer, designer, artist`,
+    title: `Simple Text Editor`,
     images: [
       "https://res.cloudinary.com/djl46nj0r/image/upload/v1710252645/bBack_and_Yellow_Personal_Trainer_Linkedin_Banner_rhgakl.png",
     ],
@@ -59,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='scroll-smooth'>
+    <html lang='en' className='scroll-smooth' suppressHydrationWarning>
       <Head>
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link
@@ -72,10 +74,10 @@ export default function RootLayout({
           rel='stylesheet'
         ></link>
       </Head>
-      <body className={cn(inter.className, "w-full mx-auto  ")}>
+      <body className={cn(inter.className, "w-full mx-auto h-[100dvh] ")}>
         <Script
           async
-          src='https://www.googletagmanager.com/gtag/js?id=G-QD4WW87QJ1'
+          src='https://www.googletagmanager.com/gtag/js?id=G-XRTMEN8L65'
         />
 
         <Script id='google-analytics'>
@@ -83,7 +85,7 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-QD4WW87QJ1');
+              gtag('config', 'G-XRTMEN8L65');
           `}
         </Script>
         <EditorConfigProvider>
@@ -93,8 +95,8 @@ export default function RootLayout({
             disableTransitionOnChange
             themes={THEMES}
           >
-            <main className='flex min-h-screen flex-col relative '>
-              <div>{children}</div>
+            <main className='flex h-full flex-col relative '>
+              {children}
               <Footer />
               <Toaster />
             </main>
