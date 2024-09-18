@@ -310,6 +310,12 @@ export default function Editor({
         .split(/\s+/)
         .filter((word) => word.length > 0).length,
     }));
+    if (
+      filename?.toLowerCase() == "untitled.txt" &&
+      text.split(" ").length > 3
+    ) {
+      debouncedUpdateFile(text.split(" ").slice(0, 4).join(" ") + ".txt");
+    }
   }, [text]);
 
   return (
@@ -319,8 +325,13 @@ export default function Editor({
     >
       <div className='py-5 sticky top-0 z-10 px-2 lg:px-6'>
         <div className='flex flex-wrap justify-between items-center mb-4 gap-2'>
-          <h1 className='text-2xl font-semibold'>Simple Text Editor</h1>
-          <div className='ml-auto md:hidden'>
+          <h1 className='text-2xl font-semibold'>
+            Simple Text Editor{" "}
+            {isSaving && (
+              <Save className='size-4 animate-bounce inline-block ml-2 opacity-20' />
+            )}
+          </h1>
+          <div className='ml-auto md:hidden flex items-center gap-2'>
             <EditorConfigMenu />
           </div>
           <div className='flex items-center gap-4 w-full md:w-1/2 ml-auto'>
@@ -330,7 +341,7 @@ export default function Editor({
               placeholder='file name goes here'
               className='md:text-right flex-1  bg-transparent focus:border-b focus:border-0 w-full md:w-auto text-muted-foreground focus:outline-none focus:border-none focus:text-foreground'
             />
-            <div className='hidden md:inline-block'>
+            <div className='hidden md:flex items-center gap-2'>
               {" "}
               <EditorConfigMenu />
             </div>

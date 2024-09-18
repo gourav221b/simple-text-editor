@@ -52,3 +52,14 @@ export function trimEnd(text: string) {
 export function toLines(text: string) {
   return text.split(/\r\n|\r|\n/);
 }
+
+export function toggleFullScreen() {
+  if (typeof window == "undefined")
+    return
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else if (document.exitFullscreen) {
+    document.exitFullscreen();
+  }
+}
+
