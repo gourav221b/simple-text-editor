@@ -21,6 +21,7 @@ import { useEditorConfigContext } from "./config-provider";
 
 import { db, Editor } from "@/config/db";
 import EditorConfigMenu from "@/components/EditorConfigMenu";
+import BackupRestoreMenu from "@/components/BackupRestoreMenu";
 import { useToast } from "@/components/ui/use-toast";
 import { Save } from "lucide-react";
 import {
@@ -30,7 +31,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
+
 
 import { Button } from "@/components/ui/button";
 
@@ -214,7 +217,7 @@ export default function Editor2({
 
     return () => {
       if (editor) {
-        editor.removeEventListener("keydown", () => {});
+        editor.removeEventListener("keydown", () => { });
       }
     };
   }, []);
@@ -253,6 +256,8 @@ export default function Editor2({
     const blob = new Blob([text], { type });
     saveAs(blob, downloadName);
   };
+
+
   // Debounced update function
   const debouncedUpdateFile = useCallback(
     debounce(async (newFilename: string) => {
@@ -336,6 +341,7 @@ export default function Editor2({
             )}
           </h1>
           <div className='ml-auto md:hidden flex items-center gap-2'>
+            <BackupRestoreMenu />
             <EditorConfigMenu />
           </div>
           <div className='flex items-center gap-4 w-full md:w-1/2 ml-auto'>
@@ -349,6 +355,7 @@ export default function Editor2({
             />
             <div className='hidden md:flex items-center gap-2'>
               {" "}
+              <BackupRestoreMenu />
               <EditorConfigMenu />
             </div>
           </div>
