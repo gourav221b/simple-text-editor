@@ -27,11 +27,11 @@ interface TemplateSelectorProps {
   suggestedExtension?: string;
 }
 
-export default function TemplateSelector({ 
-  isOpen, 
-  onClose, 
+export default function TemplateSelector({
+  isOpen,
+  onClose,
   onSelectTemplate,
-  suggestedExtension 
+  suggestedExtension
 }: TemplateSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
@@ -44,8 +44,8 @@ export default function TemplateSelector({
   // Initialize built-in templates in database if not exists
   useEffect(() => {
     const initializeTemplates = async () => {
-      const existingTemplates = await db.templates.where('isBuiltIn').equals(true).toArray();
-      
+      const existingTemplates = await db.templates.filter(template => template.isBuiltIn === true).toArray();
+
       if (existingTemplates.length === 0) {
         for (const template of BUILT_IN_TEMPLATES) {
           await db.templates.add({
@@ -55,7 +55,7 @@ export default function TemplateSelector({
         }
       }
     };
-    
+
     initializeTemplates();
   }, []);
 
@@ -64,19 +64,19 @@ export default function TemplateSelector({
 
   // Filter templates based on search and suggested extension
   const filteredTemplates = allTemplates.filter(template => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesExtension = !suggestedExtension || 
+
+    const matchesExtension = !suggestedExtension ||
       template.fileExtension === suggestedExtension;
-    
+
     return matchesSearch && matchesExtension;
   });
 
   const handleTemplateSelect = (template: Template) => {
     const variables = extractTemplateVariables(template.content);
-    
+
     if (variables.length > 0) {
       setSelectedTemplate(template);
       setTemplateVariables({});
@@ -91,7 +91,7 @@ export default function TemplateSelector({
 
   const handleUseTemplate = () => {
     if (!selectedTemplate) return;
-    
+
     const processedContent = processTemplate(selectedTemplate.content, templateVariables);
     onSelectTemplate?.(selectedTemplate.name, processedContent);
     onClose();
@@ -240,8 +240,8 @@ export default function TemplateSelector({
         <DialogFooter>
           {isCustomizing ? (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setIsCustomizing(false);
                   setSelectedTemplate(null);
@@ -259,8 +259,8 @@ export default function TemplateSelector({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   onSelectTemplate?.('Blank File', '');
                   onClose();

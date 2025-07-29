@@ -102,7 +102,6 @@ export default function TabContextMenu({
         name: duplicateName,
         content: editor.content,
         color: editor.color,
-        groupId: editor.groupId,
         isPinned: false,
         createdAt: new Date(),
         updatedAt: new Date(),
