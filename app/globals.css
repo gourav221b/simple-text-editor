@@ -3,7 +3,9 @@
 @tailwind utilities;
 @import url('./markdown.css');
 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Playwrite+AU+NSW:wght@100..400&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 @layer base {
+
   :root,
   .light {
     --background: #ffffff;
@@ -25,8 +27,16 @@
     --border: #e5e7eb;
     --input: #e5e7eb;
     --ring: #0e0e10;
-    --analytics-banner:#3b82f6;
+    --analytics-banner: #3b82f6;
     --radius: 0.5rem;
+    --sidebar-background: #ffffff;
+    --sidebar-foreground: #0e0e10;
+    --sidebar-primary: #3b82f6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f3f3f4;
+    --sidebar-accent-foreground: #1e1e1f;
+    --sidebar-border: #e5e7eb;
+    --sidebar-ring: #0e0e10;
   }
 
   .dark {
@@ -49,20 +59,102 @@
     --border: #202328;
     --input: #202328;
     --ring: #dfa207;
+    --sidebar-background: #0e0e10;
+    --sidebar-foreground: #f4f7f9;
+    --sidebar-primary: #3b82f6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #202328;
+    --sidebar-accent-foreground: #f4f7f9;
+    --sidebar-border: #202328;
+    --sidebar-ring: #dfa207;
   }
 }
-.editor textarea{
+
+.editor textarea {
   resize: none;
-  
+
 }
-.no-scrollbar::-webkit-scrollbar{
+
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Custom scrollbar for tab overflow */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 3px;
+}
+
+.scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 3px;
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
+  background-color: #6b7280;
+}
+
+/* Tab list improvements */
+[data-radix-tabs-list] {
+  position: relative;
+}
+
+/* Smooth scrolling for tabs */
+[data-radix-tabs-list]::-webkit-scrollbar {
+  height: 4px;
+}
+
+[data-radix-tabs-list]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-radix-tabs-list]::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.dark [data-radix-tabs-list]::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Tab trigger improvements */
+[data-radix-tabs-trigger] {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-radix-tabs-trigger]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark [data-radix-tabs-trigger]:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .editor::-webkit-scrollbar {
   display: block;
   height: 4px;
   width: 4px;
 }
+
 .editor::-webkit-scrollbar-track {
   border-radius: 4px;
   background-color: hsl(var(--muted));

@@ -273,7 +273,7 @@ export default function Editor2({
           });
           console.log(err);
         });
-    }, 700),
+    }, 50),
     []
   );
   const debouncedUpdateContent = useCallback(
@@ -295,7 +295,7 @@ export default function Editor2({
           });
           console.log(err);
         });
-    }, 700),
+    }, 50),
     []
   );
 
