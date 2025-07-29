@@ -23,7 +23,7 @@ interface EditorConfigContextProps {
   setConfigTheme: (theme: string) => void;
 }
 
-const EditorConfigContext = createContext<EditorConfigContextProps | undefined>(
+export const EditorConfigContext = createContext<EditorConfigContextProps | undefined>(
   undefined
 );
 
@@ -48,14 +48,34 @@ export const EditorConfigProvider = ({
   useEffect(() => {
     const storedConfig = localStorage.getItem("editorConfig");
     if (storedConfig) {
-      setEditorConfig(JSON.parse(storedConfig));
+      const config = JSON.parse(storedConfig);
+      setEditorConfig(config);
+
+      // Apply the stored theme class
+      if (typeof document !== 'undefined' && config.theme) {
+        const htmlElement = document.documentElement;
+        const themeClasses = ['light', 'dark', 'vscode-dark', 'monokai', 'dracula', 'iron-man', 'captain-america', 'hulk', 'spider-man', 'matrix', 'neon-nights', 'ocean-deep', 'midnight-purple', 'forest-green', 'tanjiro', 'rengoku', 'zenitsu', 'tengen'];
+
+        // Remove existing theme classes
+        themeClasses.forEach(themeClass => {
+          htmlElement.classList.remove(themeClass);
+        });
+
+        // Add the stored theme class
+        htmlElement.classList.add(config.theme);
+      }
     } else {
+      const defaultTheme = currentTheme || "dark";
       setEditorConfig({
         fontSize: 20,
         fontFamily: "system-ui, sans-serif",
-
-        theme: currentTheme || "dark",
+        theme: defaultTheme,
       });
+
+      // Apply the default theme class
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.add(defaultTheme);
+      }
     }
   }, [currentTheme]);
 
@@ -74,7 +94,28 @@ export const EditorConfigProvider = ({
   };
 
   const setConfigTheme = (theme: string) => {
-    setTheme("light");
+    // Set the Next.js theme to match our custom theme
+    setTheme(theme);
+
+    // Manually apply the theme class to the HTML element
+    // This is needed because next-themes doesn't recognize custom theme names
+    if (typeof document !== 'undefined') {
+      // Remove all existing theme classes
+      const htmlElement = document.documentElement;
+      const existingClasses = htmlElement.className.split(' ');
+      const themeClasses = ['light', 'dark', 'vscode-dark', 'monokai', 'dracula', 'iron-man', 'captain-america', 'hulk', 'spider-man', 'matrix', 'neon-nights', 'ocean-deep', 'midnight-purple', 'forest-green', 'tanjiro', 'rengoku', 'zenitsu', 'tengen'];
+
+      // Remove existing theme classes
+      themeClasses.forEach(themeClass => {
+        htmlElement.classList.remove(themeClass);
+      });
+
+      // Add the new theme class
+      htmlElement.classList.add(theme);
+
+      console.log(`Applied theme class: ${theme}`);
+    }
+
     setEditorConfig((prev) => ({
       ...prev!,
       theme,

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 
 import { Glasses, RotateCcw } from "lucide-react";
 import { MAX_FONT_SIZE, MIN_FONT_SIZE, THEMES } from "@/lib/constants";
+import { getThemeList, EditorTheme } from "@/lib/themes";
 import {
   Popover,
   PopoverContent,
@@ -133,25 +134,40 @@ function EditorConfigMenu() {
               <div className='grid grid-cols-3 items-center gap-4'>
                 <Label htmlFor='theme'>Theme</Label>
                 <Select
-                  onValueChange={(e) => setTheme(e)}
-                  value={theme || THEMES[0]}
+                  onValueChange={(e) => setConfigTheme(e)}
+                  value={editorConfig?.theme || THEMES[0]}
                 >
-                  <SelectTrigger className='col-span-2 capitalize'>
-                    <SelectValue placeholder='Theme' />
+                  <SelectTrigger className='col-span-2'>
+                    <SelectValue placeholder='Select theme' />
                   </SelectTrigger>
-                  <SelectContent className='flex-1'>
-                    {THEMES.map((theme: string) => (
+                  <SelectContent className='flex-1 max-h-[300px]'>
+                    {getThemeList().map((themeObj: EditorTheme) => (
                       <SelectItem
-                        value={theme}
-                        key={theme}
-                        className='capitalize'
+                        value={themeObj.id}
+                        key={themeObj.id}
+                        className='cursor-pointer'
                       >
-                        {theme}
+                        <div className='flex items-center gap-3 w-full'>
+                          <div
+                            className='w-4 h-4 rounded border border-border flex-shrink-0'
+                            style={{
+                              backgroundColor: themeObj.colors.editorBackground,
+                              border: `1px solid ${themeObj.colors.border}`
+                            }}
+                          />
+                          <div className='flex flex-col items-start'>
+                            <span className='font-medium'>{themeObj.displayName}</span>
+                            <span className='text-xs text-muted-foreground truncate max-w-[200px]'>
+                              {themeObj.description}
+                            </span>
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
             </div>
           </div>
         </PopoverContent>

@@ -45,15 +45,15 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
     if (!searchQuery.trim() || !editors) return [];
 
     const results: SearchResult[] = [];
-    
+
     for (const editor of editors) {
       const matches: SearchResult['matches'] = [];
       const lines = editor.content.split('\n');
-      
+
       for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
         const line = lines[lineIndex];
         let searchPattern: RegExp;
-        
+
         try {
           if (isRegex) {
             searchPattern = new RegExp(searchQuery, isCaseSensitive ? 'g' : 'gi');
@@ -61,7 +61,7 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
             const escapedQuery = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             searchPattern = new RegExp(escapedQuery, isCaseSensitive ? 'g' : 'gi');
           }
-          
+
           let match;
           while ((match = searchPattern.exec(line)) !== null) {
             matches.push({
@@ -70,7 +70,7 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
               startIndex: match.index,
               endIndex: match.index + match[0].length,
             });
-            
+
             // Prevent infinite loop for zero-length matches
             if (match.index === searchPattern.lastIndex) {
               searchPattern.lastIndex++;
@@ -81,12 +81,12 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
           continue;
         }
       }
-      
+
       if (matches.length > 0) {
         results.push({ editor, matches });
       }
     }
-    
+
     return results;
   }, [searchQuery, editors, isRegex, isCaseSensitive]);
 
@@ -113,7 +113,7 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
     const before = content.substring(0, startIndex);
     const match = content.substring(startIndex, endIndex);
     const after = content.substring(endIndex);
-    
+
     return (
       <>
         {before}
@@ -136,7 +136,7 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Search className="w-5 h-5" />
@@ -151,7 +151,7 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
 
         <div className="space-y-4 flex-1 flex flex-col min-h-0">
           {/* Search Controls */}
-          <div className="space-y-3">
+          <div className="space-y-3 flex-shrink-0">
             <div className="flex gap-2">
               <div className="flex-1">
                 <Input
@@ -182,76 +182,75 @@ export default function GlobalSearch({ isOpen, onClose, onSelectResult }: Global
           </div>
 
           {/* Search Results */}
-          <ScrollArea className="flex-1 border rounded-md">
-            <div className="p-4">
-              {searchQuery.trim() === '' ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Enter a search term to find content across all files</p>
-                </div>
-              ) : searchResults.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No matches found</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {searchResults.map((result) => {
-                    const isExpanded = expandedFiles.has(result.editor.id);
-                    const fileColor = getFileTypeColor(result.editor.name);
-                    
-                    return (
-                      <div key={result.editor.id} className="border rounded-lg">
-                        {/* File Header */}
-                        <button
-                          className="w-full flex items-center gap-2 p-3 hover:bg-accent rounded-t-lg"
-                          onClick={() => toggleFileExpansion(result.editor.id)}
-                        >
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: fileColor }}
-                          />
-                          <span className="font-medium">{result.editor.name}</span>
-                          <Badge variant="secondary" className="ml-auto">
-                            {result.matches.length} match{result.matches.length !== 1 ? 'es' : ''}
-                          </Badge>
-                        </button>
-                        
-                        {/* Match Results */}
-                        {isExpanded && (
-                          <div className="border-t">
-                            {result.matches.map((match, matchIndex) => (
-                              <button
-                                key={matchIndex}
-                                className="w-full text-left p-3 hover:bg-accent border-b last:border-b-0 font-mono text-sm"
-                                onClick={() => handleResultClick(result.editor.id, match.line)}
-                              >
-                                <div className="flex items-start gap-3">
-                                  <span className="text-muted-foreground min-w-[3rem] text-right">
-                                    {match.line}
-                                  </span>
-                                  <div className="flex-1 overflow-hidden">
-                                    <code className="whitespace-pre-wrap break-all">
-                                      {highlightMatch(match.content, match.startIndex, match.endIndex)}
-                                    </code>
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-[60vh] border border-accent rounded-md">
+              <div className="p-4">
+                {searchQuery.trim() === '' ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Enter a search term to find content across all files</p>
+                  </div>
+                ) : searchResults.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No matches found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {searchResults.map((result) => {
+                      const isExpanded = expandedFiles.has(result.editor.id);
+                      const fileColor = getFileTypeColor(result.editor.name);
+
+                      return (
+                        <div key={result.editor.id} className="border rounded-lg text-xs">
+                          {/* File Header */}
+                          <button
+                            className="w-full flex items-center gap-2 p-3 bg-accent hover:bg-accent rounded-t-lg text-xs"
+                            onClick={() => toggleFileExpansion(result.editor.id)}
+                          >
+                            {isExpanded ? (
+                              <ChevronDown className="w-4 h-4" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4" />
+                            )}
+
+                            <span className="font-medium">{result.editor.name}</span>
+                            <Badge variant="default" className="ml-auto">
+                              {result.matches.length} match{result.matches.length !== 1 ? 'es' : ''}
+                            </Badge>
+                          </button>
+
+                          {/* Match Results */}
+                          {isExpanded && (
+                            <div className="border-t text-xs">
+                              {result.matches.map((match, matchIndex) => (
+                                <button
+                                  key={matchIndex}
+                                  className="w-full text-left p-3 hover:bg-accent border-b last:border-b-0 font-mono text-sm"
+                                  onClick={() => handleResultClick(result.editor.id, match.line)}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <span className="text-muted-foreground min-w-[3rem] text-right">
+                                      {match.line}
+                                    </span>
+                                    <div className="flex-1 overflow-hidden">
+                                      <code className="whitespace-pre-wrap break-all text-xs">
+                                        {highlightMatch(match.content, match.startIndex, match.endIndex)}
+                                      </code>
+                                    </div>
                                   </div>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2">

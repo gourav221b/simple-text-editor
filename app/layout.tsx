@@ -88,20 +88,21 @@ export default function RootLayout({
               gtag('config', 'G-XRTMEN8L65');
           `}
         </Script>
-        <EditorConfigProvider>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='dark'
-            disableTransitionOnChange
-            themes={THEMES}
-          >
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='dark'
+          disableTransitionOnChange
+          themes={THEMES}
+        >
+          <EditorConfigProvider>
+            {/* <ThemeDebug /> */}
             <main className='flex h-full flex-col relative '>
               {children}
               <Footer />
               <Toaster />
             </main>
-          </ThemeProvider>
-        </EditorConfigProvider>
+          </EditorConfigProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

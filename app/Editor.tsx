@@ -439,7 +439,7 @@ export default function Editor2({
             value={text}
             onChange={(e) => setText(e.target.value)}
             className={cn(
-              "w-full h-[98%] editor bg-background focus:border-0 focus:outline-none"
+              "w-full h-[98%] editor bg-background text-foreground focus:border-0 focus:outline-none"
             )}
             style={{
               fontSize: editorConfig?.fontSize,
@@ -451,7 +451,7 @@ export default function Editor2({
           />
         )}
         {preview && (
-          <div className='w-full flex-1 flex flex-col grow editor bg-transparent focus:border-0 focus:outline-none markdown-body'>
+          <div className='w-full flex-1 flex flex-col grow editor bg-background text-foreground focus:border-0 focus:outline-none markdown-body'>
             <Markdown>{text}</Markdown>
             <br />
           </div>

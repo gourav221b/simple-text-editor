@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "generate-themes": "node scripts/generate-themes.js"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.7",

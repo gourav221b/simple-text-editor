@@ -64,11 +64,11 @@ export default function KeyboardShortcutsDialog({ isOpen, onClose }: KeyboardSho
       category: "Search & Navigation",
       shortcuts: [
         {
-          keys: isMac ? "⌘F" : "Ctrl+F",
+          keys: isMac ? "^F" : "Ctrl+F",
           description: "Find in Current File",
         },
         {
-          keys: isMac ? "⌘⇧F" : "Ctrl+Shift+F",
+          keys: isMac ? "^⇧F" : "Ctrl+Shift+F",
           description: "Global Search (across all files)",
         },
       ],
