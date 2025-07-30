@@ -18,6 +18,11 @@ const nextConfig = withPWA({
                 destination: 'https://meet.google.com/viq-xrcp-hyj',
                 permanent: true,
             },
+            {
+                source: '/rm',
+                destination: 'https://meet.google.com/asa-odfz-pzd',
+                permanent: true,
+            },
         ]
     },
 });
