@@ -60,6 +60,9 @@ export default function Editor2({
     if (editor.name !== "") return editor.name;
     return "simple-text.txt";
   });
+  useEffect(() => {
+    setFilename(editor.name !== "" ? editor.name : "simple-text.txt");
+  }, [editor.id, editor.name]);
 
   const handleSelectionChange = () => {
     const selection = window.getSelection();
@@ -347,6 +350,7 @@ export default function Editor2({
           <div className='flex items-center gap-4 w-full md:w-1/2 ml-auto'>
             <input
               value={filename}
+              disabled
               onChange={(e) => {
                 setFilename(e.target.value);
               }}

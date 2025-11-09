@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,7 +49,21 @@ export default function TabContextMenu({
 }: TabContextMenuProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(editor.name);
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setNewName(editor.name);
+  }, [editor.name]);
+
+  const openRenameDialog = () => {
+    setIsContextMenuOpen(false);
+    // Defer dialog opening so the menu can close and release pointer events.
+    requestAnimationFrame(() => {
+      setNewName(editor.name);
+      setIsRenaming(true);
+    });
+  };
 
   const handleColorChange = async (color: string) => {
     try {
@@ -134,16 +148,20 @@ export default function TabContextMenu({
     }
 
     try {
+      const trimmedName = newName.trim();
+
       await db.editors.update(editor.id, {
-        name: newName.trim(),
+        name: trimmedName,
         updatedAt: new Date()
       });
 
+      setNewName(trimmedName);
       setIsRenaming(false);
+      setIsContextMenuOpen(false);
 
       toast({
         title: "Tab renamed",
-        description: `Tab renamed to "${newName}".`,
+        description: `Tab renamed to "${trimmedName}".`,
       });
     } catch (error) {
       toast({
@@ -162,12 +180,12 @@ export default function TabContextMenu({
 
   return (
     <>
-      <ContextMenu>
+      <ContextMenu open={isContextMenuOpen} onOpenChange={setIsContextMenuOpen}>
         <ContextMenuTrigger asChild>
           {children}
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">
-          <ContextMenuItem onClick={() => setIsRenaming(true)}>
+          <ContextMenuItem onClick={openRenameDialog}>
             <Edit2 className="w-4 h-4 mr-2" />
             Rename
           </ContextMenuItem>
@@ -262,7 +280,10 @@ export default function TabContextMenu({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsRenaming(false)}>
+            <Button variant="ghost" onClick={() => {
+              setIsRenaming(false);
+              setIsContextMenuOpen(false);
+            }}>
               Cancel
             </Button>
             <Button onClick={handleRename}>Rename</Button>
