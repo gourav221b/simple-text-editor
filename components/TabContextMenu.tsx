@@ -49,7 +49,6 @@ export default function TabContextMenu({
 }: TabContextMenuProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(editor.name);
-  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,7 +56,6 @@ export default function TabContextMenu({
   }, [editor.name]);
 
   const openRenameDialog = () => {
-    setIsContextMenuOpen(false);
     // Defer dialog opening so the menu can close and release pointer events.
     requestAnimationFrame(() => {
       setNewName(editor.name);
@@ -157,7 +155,6 @@ export default function TabContextMenu({
 
       setNewName(trimmedName);
       setIsRenaming(false);
-      setIsContextMenuOpen(false);
 
       toast({
         title: "Tab renamed",
@@ -180,7 +177,7 @@ export default function TabContextMenu({
 
   return (
     <>
-      <ContextMenu open={isContextMenuOpen} onOpenChange={setIsContextMenuOpen}>
+      <ContextMenu>
         <ContextMenuTrigger asChild>
           {children}
         </ContextMenuTrigger>
@@ -281,11 +278,10 @@ export default function TabContextMenu({
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => {
-              setIsRenaming(false);
-              setIsContextMenuOpen(false);
-            }}>
-              Cancel
-            </Button>
+      setIsRenaming(false);
+    }}>
+      Cancel
+    </Button>
             <Button onClick={handleRename}>Rename</Button>
           </DialogFooter>
         </DialogContent>
