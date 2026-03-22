@@ -501,13 +501,13 @@ const EditorWrapper = () => {
               </div>
             )}
           </div>
-          {tabs.map((tab, idx) => (
-            <TabsContent value={`${tab.id}`} key={`${tab.name}-${idx}`} asChild>
+          {tabs.map((tab) => (
+            <TabsContent value={`${tab.id}`} key={`tab-${tab.id}`} asChild>
               <>
                 <Editor
                   name={`${tab.id}`}
                   editor={tab}
-                  key={`${tab.id}-${tab.name}`}
+                  key={`editor-${tab.id}`}
                 />
               </>
             </TabsContent>
